@@ -1,0 +1,110 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+<meta content="text/html; charset=utf-8" http-equiv="Content-Type" />
+<title>Untitled 1</title>
+</head>
+
+<body>
+
+<form method="post" action="fileupload.php" enctype="multipart/form-data">
+
+<label>Name</label>
+
+<input name="title" type="text" />
+
+<label>File Upload</label>
+<input name="file" type="file" />
+<button name="submit" type="submit" value="submit">UPLOAD FILE</button>
+
+</form>
+
+</body>
+
+</html>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<?php
+
+$localhost = "localhost";
+$dbusername = "root";
+$dbpassword = "";
+$dbname = "boncomdb";
+
+$conn = mysqli_connect("$localhost", "$dbusername", "$dbpassword", "$dbname");
+
+
+if(isset($_POST['submit'])){
+
+	$file = $_FILES['file'];
+	$title = $_POST['title'];
+	
+	$fileName = $_FILES['file']['name'];
+	$fileTmpName = $_FILES['file']['tmp_name'];
+	$fileSize = $_FILES['file']['size'];
+	$fileError = $_FILES['file']['error'];
+	$fileType = $_FILES['file']['type'];
+	
+	$fileExt = explode('.', $fileName);
+	$fileActualExt = strtolower(end($fileExt));
+	
+	$allowd = array('pdf', 'docx'); 
+	
+	if(in_array($fileActualExt, $allowd)) {
+		if($fileError === 0){
+		  if($fileSize < 1000000){
+		    $fileNameNew = $title.uniqid('', true).".".$fileActualExt;
+		    $fileDestination =  'Tasks/'.$fileNameNew;
+		    move_uploaded_file($fileTmpName,$fileDestination);
+		    
+		    
+		    
+ 		$sql = "INSERT INTO chapter_test(title,file) VALUES('$title','$fileNameNew')";
+ 	
+		if(mysqli_query($conn,$sql)){
+
+ 			 echo "The file Successfully upload to database";
+			}else{
+ 				echo "Error uploading to database";
+ 			}
+
+		    
+		    
+		    
+		    
+		    echo "File loaded successfully"; 
+
+		  
+		  }else{
+		  	echo "Your file is too big"; 
+
+		  }
+		
+		
+		}else{
+		 	echo "There was an error uploading your file"; 
+
+		}
+	
+	
+	} else {
+	
+		echo "You can not upload a file of this type";
+	
+	}
+	
+	
+}
